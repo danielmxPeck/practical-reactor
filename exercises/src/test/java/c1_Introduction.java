@@ -45,7 +45,7 @@ public class c1_Introduction extends IntroductionBase {
     public void hello_world() {
         Mono<String> serviceResult = hello_world_service();
 
-        String result = "Hello World!"; //todo: change this line only
+        String result = serviceResult.block(); //todo: change this line only
 
         assertEquals("Hello World!", result);
     }
@@ -60,7 +60,6 @@ public class c1_Introduction extends IntroductionBase {
             Mono<String> serviceResult = unresponsiveService();
 
             String result = serviceResult.block(Duration.ofSeconds(1));//todo: change this line only
-            System.out.println(result);
         });
 
         String expectedMessage = "Timeout on blocking read for 1";
@@ -95,7 +94,6 @@ public class c1_Introduction extends IntroductionBase {
         Flux<String> serviceResult = multiResultService();
 
         String result = serviceResult.blockFirst(); //todo: change this line only
-        System.out.println(result);
         assertEquals("valid result", result);
     }
 
@@ -131,8 +129,8 @@ public class c1_Introduction extends IntroductionBase {
 
         Flux<String> serviceResult = fortuneTop5();
 
-        serviceResult.collectList().subscribe(companyList::addAll);
-        System.out.println(companyList);
+        serviceResult.doOnNext(companyList::add)
+                .subscribe();
 
         //todo: add an operator here, don't use any blocking operator!
 
