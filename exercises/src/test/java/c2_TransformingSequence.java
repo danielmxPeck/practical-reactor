@@ -28,8 +28,9 @@ public class c2_TransformingSequence extends TransformingSequenceBase {
     public void transforming_sequence() {
         Flux<Integer> numbersFlux = numerical_service()
                 .map(i -> i + 1)
+                .doOnNext(System.out::println);
                 //todo change only this line
-                ;
+
 
         //StepVerifier is used for testing purposes
         //ignore it for now, or explore it independently
@@ -49,11 +50,28 @@ public class c2_TransformingSequence extends TransformingSequenceBase {
         Flux<Integer> numbersFlux = numerical_service_2();
 
         //todo: do your changes here
-        Flux<String> resultSequence = numbersFlux.flatMap(i -> {
-          if(i >0) return Flux.just(">");
-          else if (i<0) return Flux.just("<");
-          else return Flux.just("=");
-        });
+//        Flux<String> resultSequence = numbersFlux.flatMap(i -> {
+//          if(i >0) return Flux.just(">");
+//          else if (i<0) return Flux.just("<");
+//          else return Flux.just("=");
+//        });
+
+        Flux<String> resultSequence = numbersFlux.map(
+                i -> {
+                    if (i > 0) return ">";
+                    else if (i == 0) return "=";
+                    else return "<";
+                }
+        );
+
+        resultSequence.subscribe(
+                result ->{
+                    if(result.equals(">")) System.out.println("Greater than zero");
+                    else if(result.equals("<")) System.out.println("Less than zero");
+                    else System.out.println("Equal to zero");
+                }
+        );
+
 
         //don't change code below
         StepVerifier.create(resultSequence)
@@ -69,9 +87,12 @@ public class c2_TransformingSequence extends TransformingSequenceBase {
      */
     @Test
     public void cast() {
-        Flux<String> numbersFlux = object_service()
-                .map(Object::toString); //todo: change this line only
+//        Flux<String> numbersFlux = object_service()
+//                .map(Object::toString); //todo: change this line only
 
+        Flux<String> numbersFlux = object_service()
+                .cast(String.class)
+                .doOnNext(System.out::println);
 
         StepVerifier.create(numbersFlux)
                     .expectNext("1", "2", "3", "4", "5")
@@ -103,7 +124,6 @@ public class c2_TransformingSequence extends TransformingSequenceBase {
         //todo: change code as you need
         Mono<Integer> sum = numerical_service()
                 .reduce(Integer::sum);
-
 
         //don't change code below
         StepVerifier.create(sum)
