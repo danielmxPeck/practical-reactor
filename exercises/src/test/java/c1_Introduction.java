@@ -45,7 +45,7 @@ public class c1_Introduction extends IntroductionBase {
     public void hello_world() {
         Mono<String> serviceResult = hello_world_service();
 
-        String result = "Hello World!"; //todo: change this line only
+        String result = serviceResult.block();
 
         assertEquals("Hello World!", result);
     }
@@ -131,8 +131,7 @@ public class c1_Introduction extends IntroductionBase {
 
         Flux<String> serviceResult = fortuneTop5();
 
-        serviceResult.collectList().subscribe(companyList::addAll);
-        System.out.println(companyList);
+        serviceResult.subscribe(companyList::add);
 
         //todo: add an operator here, don't use any blocking operator!
 
