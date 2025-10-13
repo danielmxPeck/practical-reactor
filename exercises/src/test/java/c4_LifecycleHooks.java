@@ -94,6 +94,10 @@ public class c4_LifecycleHooks extends LifecycleHooksBase {
         AtomicBoolean completed = new AtomicBoolean(false);
 
         Flux<Integer> temperatureFlux = room_temperature_service()
+                .flatMap(num ->{
+                    System.out.println(num);
+                    return Mono.just(num);
+                }).doOnComplete(() -> completed.set(true));
                 //todo: change this line only
                 ;
 
@@ -114,6 +118,7 @@ public class c4_LifecycleHooks extends LifecycleHooksBase {
 
         Flux<Integer> temperatureFlux = room_temperature_service()
                 //todo: change this line only
+                .doOnCancel(() -> canceled.set(true))
                 ;
 
         StepVerifier.create(temperatureFlux.take(0))
@@ -133,6 +138,8 @@ public class c4_LifecycleHooks extends LifecycleHooksBase {
         AtomicInteger hooksTriggeredCounter = new AtomicInteger(0);
 
         Flux<Integer> temperatureFlux = room_temperature_service()
+                .doOnError(e -> hooksTriggeredCounter.incrementAndGet())
+                .doOnComplete(hooksTriggeredCounter::incrementAndGet);
                 //todo: change this line only
                 ;
 
