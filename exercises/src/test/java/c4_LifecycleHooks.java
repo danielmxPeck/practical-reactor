@@ -176,6 +176,7 @@ public class c4_LifecycleHooks extends LifecycleHooksBase {
         AtomicInteger hooksTriggeredCounter = new AtomicInteger(0);
 
         Flux<Integer> temperatureFlux = room_temperature_service()
+                .doFinally(signalType -> hooksTriggeredCounter.incrementAndGet());
                 //todo: change this line only
                 ;
 
@@ -206,9 +207,8 @@ public class c4_LifecycleHooks extends LifecycleHooksBase {
                                  .doFirst(() -> sideEffects.add("three"))
                                  .doFirst(() -> sideEffects.add("two"))
                                  .doFirst(() -> sideEffects.add("one"));
-
         List<String> orderOfExecution =
-                Arrays.asList("todo", "todo", "todo"); //todo: change this line only
+                Arrays.asList("one", "two", "three"); //todo: change this line only
 
         StepVerifier.create(just)
                     .expectNext(true)
@@ -233,6 +233,8 @@ public class c4_LifecycleHooks extends LifecycleHooksBase {
 
         Flux<Integer> flux = Flux.just(1, 2, 3)
                 //todo: change this line only
+                .doOnNext(n -> signals.add("ON_NEXT"))
+                .doOnComplete(() -> signals.add("ON_COMPLETE"))
                 ;
 
         StepVerifier.create(flux)
