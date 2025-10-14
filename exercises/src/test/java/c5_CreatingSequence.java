@@ -37,9 +37,9 @@ public class c5_CreatingSequence {
      * Emit value that you already have.
      */
     @Test
-    public void value_I_already_have_mono() {
+      public void value_I_already_have_mono() {
         String valueIAlreadyHave = "value";
-        Mono<String> valueIAlreadyHaveMono = null; //todo: change this line only
+        Mono<String> valueIAlreadyHaveMono = Mono.just(valueIAlreadyHave); //todo: change this line only
 
         StepVerifier.create(valueIAlreadyHaveMono)
                     .expectNext("value")
@@ -52,7 +52,7 @@ public class c5_CreatingSequence {
     @Test
     public void potentially_null_mono() {
         String potentiallyNull = null;
-        Mono<String> potentiallyNullMono = null; //todo change this line only
+        Mono<String> potentiallyNullMono = Mono.justOrEmpty(potentiallyNull); //todo change this line only
 
         StepVerifier.create(potentiallyNullMono)
                     .verifyComplete();
@@ -64,7 +64,7 @@ public class c5_CreatingSequence {
     @Test
     public void optional_value() {
         Optional<String> optionalValue = Optional.of("optional");
-        Mono<String> optionalMono = null; //todo: change this line only
+        Mono<String> optionalMono = Mono.justOrEmpty(optionalValue); //todo: change this line only
 
         StepVerifier.create(optionalMono)
                     .expectNext("optional")
@@ -82,7 +82,7 @@ public class c5_CreatingSequence {
             return callableCounter.incrementAndGet();
         };
 
-        Mono<Integer> callableCounterMono = null; //todo: change this line only
+        Mono<Integer> callableCounterMono = Mono.fromCallable(callable); //todo: change this line only
 
         StepVerifier.create(callableCounterMono.repeat(2))
                     .expectNext(1, 2, 3)
@@ -99,7 +99,7 @@ public class c5_CreatingSequence {
             System.out.println("You are incrementing a counter via Future!");
             return futureCounter.incrementAndGet();
         });
-        Mono<Integer> futureCounterMono = null; //todo: change this line only
+        Mono<Integer> futureCounterMono = Mono.fromFuture(completableFuture); //todo: change this line only
 
         StepVerifier.create(futureCounterMono)
                     .expectNext(1)
@@ -116,7 +116,7 @@ public class c5_CreatingSequence {
             runnableCounter.incrementAndGet();
             System.out.println("You are incrementing a counter via Runnable!");
         };
-        Mono<Integer> runnableMono = null; //todo: change this line only
+        Mono<Integer> runnableMono = Mono.fromRunnable(runnable); //todo: change this line only
 
         StepVerifier.create(runnableMono.repeat(2))
                     .verifyComplete();
@@ -129,7 +129,8 @@ public class c5_CreatingSequence {
      */
     @Test
     public void acknowledged() {
-        Mono<String> acknowledged = null; //todo: change this line only
+        Mono<String> acknowledged = Mono.empty(); //todo: change this line only
+
 
         StepVerifier.create(acknowledged)
                     .verifyComplete();
@@ -140,12 +141,12 @@ public class c5_CreatingSequence {
      */
     @Test
     public void seen() {
-        Mono<String> seen = null; //todo: change this line only
+        Mono<String> seen = Mono.never(); //todo: change this line only
 
         StepVerifier.create(seen.timeout(Duration.ofSeconds(5)))
-                    .expectSubscription()
-                    .expectNoEvent(Duration.ofSeconds(4))
-                    .verifyTimeout(Duration.ofSeconds(5));
+                .expectSubscription()
+                .expectNoEvent(Duration.ofSeconds(4))
+                .verifyTimeout(Duration.ofSeconds(5));
     }
 
     /**
@@ -153,7 +154,7 @@ public class c5_CreatingSequence {
      */
     @Test
     public void trouble_maker() {
-        Mono<String> trouble = null; //todo: change this line
+        Mono<String> trouble = Mono.error(new IllegalStateException()); //todo: change this line
 
         StepVerifier.create(trouble)
                     .expectError(IllegalStateException.class)
