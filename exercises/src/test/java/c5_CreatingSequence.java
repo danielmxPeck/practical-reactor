@@ -10,6 +10,7 @@ import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicMarkableReference;
 import java.util.stream.Stream;
 
 /**
@@ -205,7 +206,7 @@ public class c5_CreatingSequence {
      */
     @Test
     public void interval() {
-        Flux<Long> interval = null; //todo: change this line only
+        Flux<Long> interval = Flux.interval(Duration.ofSeconds(1)); //todo: change this line only
 
         System.out.println("Interval: ");
         StepVerifier.create(interval.take(3).doOnNext(System.out::println))
@@ -223,7 +224,7 @@ public class c5_CreatingSequence {
      */
     @Test
     public void range() {
-        Flux<Integer> range = null; //todo: change this line only
+        Flux<Integer> range = Flux.range(-5 , 11); //todo: change this line only
 
         System.out.println("Range: ");
         StepVerifier.create(range.doOnNext(System.out::println))
@@ -238,7 +239,7 @@ public class c5_CreatingSequence {
     @Test
     public void repeat() {
         AtomicInteger counter = new AtomicInteger(0);
-        Flux<Integer> repeated = null; //todo: change this line
+        Flux<Integer> repeated = Mono.fromCallable(counter::incrementAndGet).repeat(9);
 
         System.out.println("Repeat: ");
         StepVerifier.create(repeated.doOnNext(System.out::println))
@@ -257,13 +258,20 @@ public class c5_CreatingSequence {
     @Test
     public void generate_programmatically() {
 
+        AtomicInteger counter = new AtomicInteger(0);
         Flux<Integer> generateFlux = Flux.generate(sink -> {
+            if(counter.get()>5) sink.complete();
+            sink.next(counter.getAndIncrement());
             //todo: fix following code so it emits values from 0 to 5 and then completes
         });
 
         //------------------------------------------------------
 
         Flux<Integer> createFlux = Flux.create(sink -> {
+            for(int i=0; i<=5; i++) {
+                sink.next(i);
+            }
+            sink.complete();
             //todo: fix following code so it emits values from 0 to 5 and then completes
         });
 
@@ -271,6 +279,10 @@ public class c5_CreatingSequence {
 
         Flux<Integer> pushFlux = Flux.push(sink -> {
             //todo: fix following code so it emits values from 0 to 5 and then completes
+            for(int i=0; i<=5; i++) {
+                sink.next(i);
+            }
+            sink.complete();
         });
 
         StepVerifier.create(generateFlux)
@@ -292,7 +304,7 @@ public class c5_CreatingSequence {
     @Test
     public void multi_threaded_producer() {
         //todo: find a bug and fix it!
-        Flux<Integer> producer = Flux.push(sink -> {
+        Flux<Integer> producer = Flux.create(sink -> {
             for (int i = 0; i < 100; i++) {
                 int finalI = i;
                 new Thread(() -> sink.next(finalI)).start(); //don't change this line!
