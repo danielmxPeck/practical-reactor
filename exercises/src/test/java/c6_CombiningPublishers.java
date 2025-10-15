@@ -40,9 +40,9 @@ public class c6_CombiningPublishers extends CombiningPublishersBase {
         Hooks.enableContextLossTracking(); //used for testing - detects if you are cheating!
 
         //todo: feel free to change code as you need
-        Mono<String> currentUserEmail = null;
-        Mono<String> currentUserMono = getCurrentUser();
-        getUserEmail(null);
+        Mono<String> currentUserEmail = getCurrentUser().flatMap(user -> getUserEmail(user));
+//        Mono<String> currentUserMono = getCurrentUser();
+//        getUserEmail(currentUserEmail.block());
 
         //don't change below this line
         StepVerifier.create(currentUserEmail)
@@ -60,8 +60,7 @@ public class c6_CombiningPublishers extends CombiningPublishersBase {
     @Test
     public void task_executor() {
         //todo: feel free to change code as you need
-        Flux<Void> tasks = null;
-        taskExecutor();
+        Flux<Void> tasks = taskExecutor().flatMap(Function.identity());
 
         //don't change below this line
         StepVerifier.create(tasks)
