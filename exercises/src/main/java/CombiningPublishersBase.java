@@ -42,7 +42,7 @@ public class CombiningPublishersBase {
                              .delayElements(Duration.ofMillis(250))
                              .map(i ->
                                           new Message("chunk:" + i, UUID.randomUUID().toString()))
-                             .doOnNext(msg -> System.out.println("-> msg#" + msg.metaData))
+                             .doOnNext(msg -> System.out.println("-> msg#" + msg.metaData + " [" + msg.payload + "]"))
                              .doOnSubscribe(s -> System.out.println("Streaming started..."))
                              .delaySubscription(Duration.ofMillis(750))
                              .doOnComplete(() -> System.out.println("Streaming finished!")))
