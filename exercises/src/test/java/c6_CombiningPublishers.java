@@ -210,9 +210,7 @@ public class c6_CombiningPublishers extends CombiningPublishersBase {
         //todo: feel free to change code as you need
         autoComplete(null);
         Flux<String> suggestions = userSearchInput()
-                .switchMap(this::autoComplete)
-                //todo: use one operator only
-                ;
+                .switchMap(this::autoComplete);
 
         //don't change below this line
         StepVerifier.create(suggestions)
@@ -233,7 +231,8 @@ public class c6_CombiningPublishers extends CombiningPublishersBase {
         Mono<Boolean> successful = openFile()
                 .then(writeToFile("0x3522285912341"))
                 .then(closeFile())
-                .thenReturn(true);
+                .thenReturn(true)
+                .defaultIfEmpty(false);
 
 
 //        openFile();
@@ -256,9 +255,10 @@ public class c6_CombiningPublishers extends CombiningPublishersBase {
     @Test
     public void one_to_n() {
         //todo: feel free to change code as you need
-        Flux<String> fileLines = null;
-        openFile();
-        readFile();
+        Flux<String> fileLines = openFile()
+                .thenMany(readFile());
+//        openFile();
+//        readFile();
 
         StepVerifier.create(fileLines)
                     .expectNext("0x1", "0x2", "0x3")
@@ -272,9 +272,11 @@ public class c6_CombiningPublishers extends CombiningPublishersBase {
     @Test
     public void acid_durability() {
         //todo: feel free to change code as you need
-        Flux<String> committedTasksIds = null;
-        tasksToExecute();
-        commitTask(null);
+        Flux<String> committedTasksIds = tasksToExecute()
+                .concatMap(task -> task.flatMap(id -> commitTask(id).thenReturn(id)));
+
+//        tasksToExecute();
+//        commitTask(null);
 
         //don't change below this line
         StepVerifier.create(committedTasksIds)
@@ -292,8 +294,8 @@ public class c6_CombiningPublishers extends CombiningPublishersBase {
     @Test
     public void major_merger() {
         //todo: feel free to change code as you need
-        Flux<String> microsoftBlizzardCorp =
-                microsoftTitles();
+        Flux<String> microsoftBlizzardCorp = Flux.merge(microsoftTitles(), blizzardTitles());
+        microsoftTitles();
         blizzardTitles();
 
         //don't change below this line
@@ -318,7 +320,8 @@ public class c6_CombiningPublishers extends CombiningPublishersBase {
     @Test
     public void car_factory() {
         //todo: feel free to change code as you need
-        Flux<Car> producedCars = null;
+        Flux<Car> producedCars = carChassisProducer().zipWith(carEngineProducer())
+                        .map(carParts -> new Car(carParts.getT1(), carParts.getT2()));
         carChassisProducer();
         carEngineProducer();
 
@@ -339,12 +342,39 @@ public class c6_CombiningPublishers extends CombiningPublishersBase {
     //only read from sourceRef
     AtomicReference<String> sourceRef = new AtomicReference<>("X");
 
+    enum ref {
+        A, B
+    }
+
     //todo: implement this method based on instructions
     public Mono<String> chooseSource() {
-        sourceA(); //<- choose if sourceRef == "A"
-        sourceB(); //<- choose if sourceRef == "B"
-        return Mono.empty(); //otherwise, return empty
+
+//        String currentRef = sourceRef.get();
+//        if(ref.A.name().equals(currentRef)) {
+//            return sourceA();
+//        }
+//        if(ref.B.name().equals(currentRef)) {
+//            return sourceB();
+//        }
+//        return Mono.empty();
+
+//        sourceA(); //<- choose if sourceRef == "A"
+//        sourceB(); //<- choose if sourceRef == "B"
+//        return Mono.empty(); //otherwise, return empty
+
+        return Mono.defer( () -> {
+            String currentRef = sourceRef.get();
+            if(ref.A.name().equals(currentRef)) {
+            return sourceA();
+        }
+        if(ref.B.name().equals(currentRef)) {
+            return sourceB();
+        }
+        return Mono.empty();
+
+        });
     }
+
 
     @Test
     public void deterministic() {
