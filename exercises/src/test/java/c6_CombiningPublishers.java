@@ -405,8 +405,9 @@ public class c6_CombiningPublishers extends CombiningPublishersBase {
 
         //todo: feel free to change code as you need
         Flux<String> stream = StreamingConnection.startStreaming()
-                                                 .flatMapMany(Function.identity());
-        StreamingConnection.closeConnection();
+                                                 .flatMapMany(Function.identity())
+                                                         .concatWith(StreamingConnection.closeConnection().then(Mono.empty()));
+//        StreamingConnection.closeConnection();
 
         //don't change below this line
         StepVerifier.create(stream)
